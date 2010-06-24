@@ -19,6 +19,7 @@ my $builder = Module::Build->new(
 				  'Carp' => 1.04,
 				  'English' => 1.02,
 				  'Readonly' => '1.03',
+				  'FileHandle' => 0,
 				  'Test::More' => 0.74,
           'Test::Exception' => 0,
 				 },
