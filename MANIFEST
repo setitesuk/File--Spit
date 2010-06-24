@@ -2,4 +2,12 @@ Build.PL
 Changes
 MANIFEST
 README
+lib/File/Spit.pm
+t/00-critic.t
+t/00-distribution.t
+t/00-kwalitee.t
+t/00-pod.t
+t/00-podcoverage.t
+t/10-File-Spit.t
+t/perlcriticrc
 Makefile.PL

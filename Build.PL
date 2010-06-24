@@ -22,12 +22,16 @@ my $builder = Module::Build->new(
 				  'FileHandle' => 0,
 				  'Test::More' => 0.74,
           'Test::Exception' => 0,
+          'Exporter' => 0,
+          'base' => 0,
 				 },
 				 recommends          => {
 							},
 				 build_requires      => {
 							 'Test::More' => '0.8',
                'Test::Exception' => 0,
+               'File::Temp' => 0,
+               'Perl6::Slurp' => 0,
 							},
 				 build_recommends    => {
 							 'Test::Cmd' => '1.05',

@@ -11,6 +11,9 @@ use Readonly; Readonly::Scalar our $VERSION => 0.1;
 
 use FileHandle;
 
+use base qw{Exporter};
+our @EXPORT = qw{spit}; ## no critic (Modules::ProhibitAutomaticExportation)
+
 =head1 NAME
 
 File::Spit
@@ -36,16 +39,81 @@ use any punctuation given as a delimiter.
 
 =head2 spit
 
+will croak if once it has a file_path and a possible delimiter, it finds no data (note, this is different from an empty string or 0)
+
+delimiter - if the delimiter matches against /\A[\s:=,.\/;]+\z/xms, it will be used, else it will just append to the file
+perl false values (undef, q{} or 0) will be classified as though there is no delimiter given
+
+will croak if it fails to write, with value of $EVAL_ERROR
+
+Write to file, killing any previous versions of file (note, no warnings)
+  eval {
+    spit ( $FilePath, $data );
+  } or do {
+    your error handling here...
+  };
+
+Append to file, creating if needed, but no delimiter
+
+  eval {
+    spit ( $FilePath, $string, 1 ); # note, it is just a true value, any perl false values will use write and kill previous file
+  } or do {
+    your error handling here...
+  };
+
+Append as above, but with delimiter
+
+  eval {
+    spit ( $FilePath, $string, qq{\n\n} );
+  } or do {
+    your error handling here...
+  };
+
+On success, this returns a true value (1)
+
 =cut
 
-sub spit {
+sub spit { ## no critic (Subroutines::RequireArgUnpacking)
+
   my $file_path = shift @_;
+
   my $delimiter;
   if ( scalar @_ == 2 ) {
     $delimiter = pop @_;
   }
 
-  my $fh;
+  if ( scalar @_ != 1 || ! defined $_[0] ) {
+    croak q{no data to save out};
+  }
+
+  my $fh = FileHandle->new();
+
+  if ( ! $delimiter ) {
+    eval {
+      $fh->open( qq{> $file_path} );
+      print {$fh} $_[0] or croak qq{unable to write to $file_path};
+      1;
+    } or do {
+      croak $EVAL_ERROR;
+    };
+
+    $fh->close();
+    return 1;
+  }
+
+  eval {
+    $fh->open( qq{>> $file_path} );
+    if ( $delimiter =~ /\A[\s:=,.\/;]+\z/xms ) {
+      print {$fh} $delimiter . $_[0] or croak qq{unable to write to $file_path};
+    } else {
+      print {$fh} $_[0] or croak qq{unable to write to $file_path};
+    }
+    1;
+  } or do {
+    croak $EVAL_ERROR;
+  };
+
+  $fh->close;
 
   return 1;
 
@@ -73,6 +141,10 @@ __END__
 =item File::Handle
 
 =item Readonly
+
+=item base
+
+=item Exporter
 
 =back
 
